@@ -112,6 +112,19 @@ if ($apply) {
         $author = $USER;
     }
 
+    if (
+        $contribution->assignee == $USER->id
+        && $contribution->status == contribution::STATE_NEW
+        && has_capability('local/amos:commit', context_system::instance())
+    ) {
+        // The maintainer applied the contribution directly, without explicitly starting
+        // a review first. Move it to the "In review" state so that it is later picked up
+        // by the automatic acceptance once the strings are committed, crediting its author.
+        $contribution->status = contribution::STATE_REVIEW;
+        $contribution->timemodified = time();
+        $DB->update_record('amos_contributions', $contribution);
+    }
+
     $stash = amos_stash::instance_from_id($contribution->stashid);
     $stage = amos_persistent_stage::instance_for_user($USER->id, sesskey());
     $stash->apply($stage);
