@@ -117,9 +117,7 @@ if ($apply) {
         && $contribution->status == contribution::STATE_NEW
         && has_capability('local/amos:commit', context_system::instance())
     ) {
-        // The maintainer applied the contribution directly, without explicitly starting
-        // a review first. Move it to the "In review" state so that it is later picked up
-        // by the automatic acceptance once the strings are committed, crediting its author.
+        // Applied without an explicit review, so mark it for the automatic acceptance.
         $contribution->status = contribution::STATE_REVIEW;
         $contribution->timemodified = time();
         $DB->update_record('amos_contributions', $contribution);
